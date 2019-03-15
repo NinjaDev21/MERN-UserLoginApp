@@ -14,8 +14,8 @@ import NotFound from './components/App/NotFound';
 import Home from './components/Home/Home';
 
 import HelloWorld from './components/HelloWorld/HelloWorld';
-
 import './styles/styles.scss';
+import Myworld from "./components/Myworld/Myworld";
 
 render((
   <Router>
@@ -23,6 +23,7 @@ render((
       <Switch>
         <Route exact path="/" component={Home}/>
         <Route path="/helloworld" component={HelloWorld}/>
+        <Route path="/myworld" component={Myworld}/>
         <Route component={NotFound}/>
       </Switch>
     </App>

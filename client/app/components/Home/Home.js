@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import 'whatwg-fetch';
-import { getFromStorage, setInStorage } from '../../utils/storage';
+import { getFromStorage, setInStorage, removeFromStorage } from '../../utils/storage';
 
 class Home extends Component {
   constructor(props) {
@@ -17,14 +17,15 @@ class Home extends Component {
         signUpPassword:'',
         signUpName:'',
     };
-    this.onSignIn   = this.onSignIn.bind(this);
+    this.onSignIn = this.onSignIn.bind(this);
     this.onSignUp = this.onSignUp.bind(this);
+    this.onLogOut = this.onLogOut.bind(this);
   }
 
   componentDidMount() {
-    // const obj = getFromStorage('the_main_app');
-    const { token }  = '';
-    if(token){
+    const obj = getFromStorage('the_main_app');
+    if(obj && obj.token){
+        const { token }  = obj;
         // verify token
         fetch('/api/account/verify?token=' + token)
             .then(res => res.json())
@@ -66,8 +67,8 @@ class Home extends Component {
          .then(data => {
              // console.log(data);
              if(data.success){
-                 // setInStorage('the_main_app',{ token : data.token});
-                 this.setState({signInError: data.message, isLoading: false })
+                 setInStorage('the_main_app',{ token : data.token});
+                 this.setState({signInError: data.message, token: data.token, isLoading: false })
              }else{
                  this.setState({signInError: data.message, isLoading: false })
              }
@@ -77,7 +78,6 @@ class Home extends Component {
  onSignUp(event){
     event.preventDefault();
     this.setState({isLoading:true});
-    // console.log(this.NameInput.value + this.signUpEmailInput.value+ this.SignUpPasswordInput.value);
      let user = {
          name: this.NameInput.value,
          email: this.signUpEmailInput.value,
@@ -93,12 +93,40 @@ class Home extends Component {
              }, }).then(res => res.json())
                 .then(data => {
                 if(data.success){
-                    this.setState({signUpError: data.message, isLoading: false })
+                    this.setState({signUpError: data.message, isLoading: false, signUpEmail:'', signUpPassword:'', signUpName:''})
                 }else{
                     this.setState({signUpError: data.message, isLoading: false })
                 }
             });
  }
+
+    onLogOut() {
+        this.setState({isLoading: true});
+        const obj = getFromStorage('the_main_app');
+        if(obj && obj.token){
+            const { token }  = obj;
+            // verify token
+            fetch('/api/account/logout?token=' + token)
+                .then(res => res.json())
+                .then(json => {
+                    if(json.success){
+                        removeFromStorage('the_main_app');
+                        // set the token and is loading
+                        this.setState({
+                            token:'',
+                            isLoading: false
+                        })
+                    }else{
+                        this.setState({
+                            isLoading: false
+                        })
+                    }
+                });
+
+        }else{
+            this.setState({ isLoading : false })
+        }
+    }
 
   render() {
       const { isLoading,
@@ -158,7 +186,8 @@ class Home extends Component {
 
     return (
       <>
-        My fucking Home Page with no data on it ...
+        <p> Logged in to the User Account : </p>
+          <button onClick={this.onLogOut}> Logout</button>
       </>
     );
   }

@@ -10,6 +10,10 @@ const Header = () => (
       <Link to="/helloworld">Hello World</Link>
     </nav>
 
+      <nav>
+          <Link to="/myworld">My World</Link>
+      </nav>
+
     <hr />
   </header>
 );
